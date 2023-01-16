@@ -1,0 +1,68 @@
+/* App.jsx */
+body {
+  margin: 0;
+}
+
+.App {
+  font-family: monospace, Arial, sans-serif;
+  font-size: 14px;
+}
+
+/* SelectUsername.jsx */
+.select-username {
+  width: 300px;
+  margin: 200px auto 0;
+}
+
+/* Chat.jsx */
+.selected {
+  background-color: #1164a3;
+}
+
+.user {
+  padding: 10px;
+}
+
+.description {
+  display: inline-block;
+}
+
+.status {
+  color: #92959e;
+}
+
+.new-messages {
+  color: white;
+  background-color: red;
+  width: 20px;
+  border-radius: 5px;
+  text-align: center;
+  float: right;
+  margin-top: 10px;
+}
+
+/* User.jsx */
+.left-panel {
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 260px;
+  overflow-x: hidden;
+  background-color: #3f0e40;
+  color: white;
+}
+
+/* SelectUsername.jsx */
+.icon {
+  height: 8px;
+  width: 8px;
+  border-radius: 50%;
+  display: inline-block;
+  background-color: #e38968;
+  margin-right: 6px;
+}
+
+.icon.connected {
+  background-color: #86bb71;
+}
