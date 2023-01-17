@@ -9,18 +9,26 @@ const Chat = () => {
 
   useEffect(() => {
     socket.on("connect", () => {
-      users.forEach((user) => {
-        if (user.self) {
-          user.connected = true
-        }
+      setUsers((current) => {
+        const currentUsers = current.map((user) => {
+          if (user.self) {
+            return { ...user, connected: true }
+          }
+          return user
+        })
+        return currentUsers
       })
     })
 
     socket.on("disconnect", () => {
-      users.forEach((user) => {
-        if (user.self) {
-          user.connected = false
-        }
+      setUsers((current) => {
+        const currentUsers = current.map((user) => {
+          if (user.self) {
+            return { ...user, connected: false }
+          }
+          return user
+        })
+        return currentUsers
       })
     })
 
@@ -36,45 +44,51 @@ const Chat = () => {
         initReactiveProperties(user)
       })
       // put the current user first, and sort by username
-      setUsers(
-        users.sort((a, b) => {
-          if (a.self) return -1
-          if (b.self) return 1
-          if (a.username < b.username) return -1
-          return a.username > b.username ? 1 : 0
-        })
-      )
+      const sortedUsers = users.sort((a, b) => {
+        if (a.self) return -1
+        if (b.self) return 1
+        if (a.username < b.username) return -1
+        return a.username > b.username ? 1 : 0
+      })
+
+      setUsers(sortedUsers)
     })
 
     socket.on("user connected", (user) => {
       initReactiveProperties(user)
-      setUsers(users.concat(user))
+      setUsers((current) => [...current, user])
     })
 
     socket.on("user disconnected", (id) => {
-      for (let i = 0; i < users.length; i++) {
-        const user = users[i]
-        if (user.userID === id) {
-          user.connected = false
-          break
-        }
-      }
+      setUsers((current) => {
+        const currentUsers = current.map((user) => {
+          if (user.userID === id) {
+            return { ...user, connected: false }
+          }
+          return user
+        })
+        return currentUsers
+      })
     })
 
     socket.on("private message", ({ content, from }) => {
-      for (let i = 0; i < users.length; i++) {
-        const user = users[i]
-        if (user.userID === from) {
-          user.messages.push({
-            content,
-            fromSelf: false,
-          })
-          if (user !== selectedUser) {
-            user.hasNewMessages = true
+      setUsers((current) => {
+        const currentUsers = current.map((user) => {
+          if (user.userID === from) {
+            user.messages.push({
+              content,
+              fromSelf: false,
+            })
+            return {
+              ...user,
+              hasNewMessages: user !== selectedUser ? true : false,
+              messages: user.messages,
+            }
           }
-          break
-        }
-      }
+          return user
+        })
+        return currentUsers
+      })
     })
 
     return () => {
@@ -93,9 +107,15 @@ const Chat = () => {
         content,
         to: selectedUser.userID,
       })
-      selectedUser.messages.push({
-        content,
-        fromSelf: true,
+      setSelectedUser((current) => {
+        selectedUser.messages.push({
+          content,
+          fromSelf: true,
+        })
+        return {
+          ...current,
+          messages: selectedUser.messages,
+        }
       })
     }
   }
@@ -110,7 +130,7 @@ const Chat = () => {
       <div className="left-panel">
         {users.map((user) => (
           <User
-            key={user.id}
+            key={user.userID}
             user={user}
             selected={selectedUser === user}
             onSelect={() => onSelectUser(user)}
@@ -118,11 +138,7 @@ const Chat = () => {
         ))}
       </div>
       {selectedUser ? (
-        <MessagePanel
-          user={selectedUser}
-          onInput={onMessage}
-          className="right-panel"
-        />
+        <MessagePanel user={selectedUser} onInput={onMessage} />
       ) : null}
     </div>
   )

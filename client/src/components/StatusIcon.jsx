@@ -1,4 +1,4 @@
-const StatusIcon = (connected) => {
+const StatusIcon = ({ connected }) => {
   return <i className={`icon ${connected ? "connected" : ""}`}></i>
 }
 
